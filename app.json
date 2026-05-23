@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "HSK Vocabulary",
+    "slug": "hsk-vocab-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "hskvocab",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"],
+    "plugins": ["expo-router"]
+  }
+}
