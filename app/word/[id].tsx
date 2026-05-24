@@ -12,8 +12,13 @@ const statuses: VocabularyStatus[] = ["new", "learning", "mastered"];
 
 export default function WordDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { items, rateItem, toggleFavorite } = useVocabulary();
+  const { items, rateItem, toggleFavorite, recordStudyEvent } = useVocabulary();
   const item = items.find((candidate) => candidate.id === id);
+
+  async function hear(text?: string) {
+    const played = await speakText(text);
+    if (played) recordStudyEvent({ heard: 1 });
+  }
 
   if (!item) return <EmptyState title="Không tìm thấy từ" detail="Từ này không còn trong bộ dữ liệu hiện tại." />;
 
@@ -31,8 +36,8 @@ export default function WordDetailScreen() {
         </Text>
       </View>
 
-      <ActionButton title="Nghe từ" onPress={() => speakText(item.word)} />
-      {item.example ? <ActionButton title="Nghe câu ví dụ" variant="secondary" onPress={() => speakText(item.example)} /> : null}
+      <ActionButton title="Nghe từ" onPress={() => hear(item.word)} />
+      {item.example ? <ActionButton title="Nghe câu ví dụ" variant="secondary" onPress={() => hear(item.example)} /> : null}
       <ActionButton title={item.isFavorite ? "Bỏ favorite" : "Favorite"} variant="secondary" onPress={() => toggleFavorite(item.id)} />
 
       <View style={{ backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 10 }}>

@@ -65,8 +65,10 @@ export default function HomeScreen() {
       <View style={{ gap: 10 }}>
         <ActionButton title="Bắt đầu học flashcard" onPress={() => router.push("/flashcards")} />
         <ActionButton title="Luyện quiz" variant="secondary" onPress={() => router.push("/quiz")} />
+        <ActionButton title="Thanh điệu & bộ thủ" variant="secondary" onPress={() => router.push("/learning")} />
         <ActionButton title="Xem danh sách từ" variant="secondary" onPress={() => router.push("/vocabulary")} />
         <ActionButton title="Import Excel" variant="secondary" onPress={importExcel} loading={importing} />
+        <ActionButton title="🙂" variant="secondary" onPress={() => router.push("/admin")} />
       </View>
 
       {message ? (

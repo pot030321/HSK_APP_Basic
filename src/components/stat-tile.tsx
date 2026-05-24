@@ -3,7 +3,7 @@ import { colors, radius } from "@/theme";
 
 type Props = {
   label: string;
-  value: number;
+  value: number | string;
 };
 
 export function StatTile({ label, value }: Props) {

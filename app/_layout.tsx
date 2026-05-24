@@ -17,6 +17,8 @@ export default function RootLayout() {
         <Stack.Screen name="vocabulary" options={{ title: "Danh sách từ" }} />
         <Stack.Screen name="flashcards" options={{ title: "Flashcard" }} />
         <Stack.Screen name="quiz" options={{ title: "Quiz" }} />
+        <Stack.Screen name="learning" options={{ title: "Thanh điệu & bộ thủ" }} />
+        <Stack.Screen name="admin" options={{ title: "🙂" }} />
         <Stack.Screen name="word/[id]" options={{ title: "Chi tiết từ" }} />
       </Stack>
     </VocabularyProvider>

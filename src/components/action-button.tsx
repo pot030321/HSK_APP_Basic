@@ -3,7 +3,7 @@ import { colors, radius } from "@/theme";
 
 type Props = {
   title: string;
-  onPress?: () => void;
+  onPress?: () => void | Promise<void>;
   variant?: "primary" | "secondary" | "danger";
   disabled?: boolean;
   loading?: boolean;

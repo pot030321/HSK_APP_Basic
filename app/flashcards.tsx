@@ -8,7 +8,7 @@ import { useVocabulary } from "@/context/use-vocabulary";
 import { VocabularyStatus } from "@/types/vocabulary";
 
 export default function FlashcardsScreen() {
-  const { items, rateItem } = useVocabulary();
+  const { items, rateItem, recordStudyEvent } = useVocabulary();
   const deck = useMemo(() => {
     const active = items.filter((item) => item.status !== "mastered");
     return active.length ? active : items;
@@ -22,6 +22,11 @@ export default function FlashcardsScreen() {
     await rateItem(item.id, status);
     setFlipped(false);
     setIndex((current) => (current + 1) % deck.length);
+  }
+
+  async function hear(text?: string) {
+    const played = await speakText(text);
+    if (played) recordStudyEvent({ heard: 1 });
   }
 
   if (!item) return <EmptyState title="Chưa có từ vựng" detail="Import Excel hoặc dùng bộ dữ liệu mặc định." />;
@@ -74,9 +79,9 @@ export default function FlashcardsScreen() {
         )}
       </Pressable>
 
-      <ActionButton title="Nghe phát âm" onPress={() => speakText(item.word)} />
+      <ActionButton title="Nghe phát âm" onPress={() => hear(item.word)} />
       {flipped && item.example ? (
-        <ActionButton title="Nghe câu ví dụ" variant="secondary" onPress={() => speakText(item.example)} />
+        <ActionButton title="Nghe câu ví dụ" variant="secondary" onPress={() => hear(item.example)} />
       ) : null}
 
       <View style={{ gap: 10 }}>

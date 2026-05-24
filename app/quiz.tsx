@@ -41,7 +41,7 @@ function buildQuestions(items: VocabularyItem[]) {
 }
 
 export default function QuizScreen() {
-  const { items, rateItem } = useVocabulary();
+  const { items, rateItem, recordStudyEvent } = useVocabulary();
   const [questions, setQuestions] = useState<Question[]>(() => buildQuestions(items));
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<QuizOption>();
@@ -52,10 +52,16 @@ export default function QuizScreen() {
   async function choose(option: QuizOption) {
     if (!question || selected) return;
     setSelected(option);
+    recordStudyEvent({ quizAnswered: 1, quizCorrect: option.isCorrect ? 1 : 0 });
     if (option.isCorrect) {
       setScore((value) => value + 1);
       await rateItem(question.item.id, "learning");
     }
+  }
+
+  async function hear(text?: string) {
+    const played = await speakText(text);
+    if (played) recordStudyEvent({ heard: 1 });
   }
 
   function next() {
@@ -106,7 +112,7 @@ export default function QuizScreen() {
           {question.item.ipa || "Chưa có phiên âm"}
         </Text>
       </View>
-      <ActionButton title="Nghe phát âm" variant="secondary" onPress={() => speakText(question.item.word)} />
+      <ActionButton title="Nghe phát âm" variant="secondary" onPress={() => hear(question.item.word)} />
       <View style={{ gap: 10 }}>
         {question.options.map((option) => {
           const isCorrect = option.isCorrect;
