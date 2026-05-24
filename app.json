@@ -6,11 +6,22 @@
     "orientation": "portrait",
     "scheme": "hskvocab",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
-    "plugins": ["expo-router"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      "expo-router"
+    ],
     "android": {
       "package": "com.hskvocab.app",
       "versionCode": 2
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5e1cd45a-b0c8-46a4-a52e-c1de2290c326"
+      }
+    },
+    "owner": "pot030321"
   }
 }
