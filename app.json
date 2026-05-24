@@ -2,7 +2,7 @@
   "expo": {
     "name": "HSK Vocabulary",
     "slug": "hsk-vocab-app",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "orientation": "portrait",
     "scheme": "hskvocab",
     "userInterfaceStyle": "automatic",
@@ -10,11 +10,15 @@
       "**/*"
     ],
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-audio"
     ],
     "android": {
       "package": "com.hskvocab.app",
-      "versionCode": 3
+      "versionCode": 4,
+      "permissions": [
+        "INTERNET"
+      ]
     },
     "extra": {
       "router": {},

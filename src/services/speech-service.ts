@@ -1,3 +1,4 @@
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from "expo-audio";
 import * as Speech from "expo-speech";
 import { Alert, Platform } from "react-native";
 
@@ -8,6 +9,8 @@ type SpeakAttempt = {
 
 let cachedChineseVoice: Speech.Voice | null | undefined;
 let warnedAboutSpeech = false;
+let currentAudioPlayer: AudioPlayer | null = null;
+let audioModeReady = false;
 
 async function getChineseVoice() {
   if (cachedChineseVoice !== undefined) return cachedChineseVoice;
@@ -28,6 +31,86 @@ async function getChineseVoice() {
 
 function normalizeSpeechText(value: string) {
   return value.replace(/[（(][^）)]*[）)]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function getOnlineAudioUrls(text: string) {
+  const encoded = encodeURIComponent(text);
+  return [
+    `https://dict.youdao.com/dictvoice?audio=${encoded}&le=zh`,
+    `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${encoded}`
+  ];
+}
+
+async function ensureAudioMode() {
+  if (audioModeReady) return;
+  await setAudioModeAsync({
+    playsInSilentMode: true,
+    interruptionMode: "duckOthers",
+    shouldPlayInBackground: false,
+    shouldRouteThroughEarpiece: false
+  });
+  audioModeReady = true;
+}
+
+async function playOnlineAudio(text: string) {
+  await ensureAudioMode();
+  currentAudioPlayer?.remove();
+  currentAudioPlayer = null;
+
+  for (const uri of getOnlineAudioUrls(text)) {
+    try {
+      const player = createAudioPlayer(
+        {
+          uri,
+          headers: {
+            "User-Agent": "Mozilla/5.0"
+          }
+        },
+        {
+          updateInterval: 100,
+          downloadFirst: true
+        }
+      );
+      currentAudioPlayer = player;
+      player.volume = 1;
+      const started = await new Promise<boolean>((resolve) => {
+        let settled = false;
+        const subscription = player.addListener("playbackStatusUpdate", (status) => {
+          if (settled) return;
+          if (status.error) {
+            settled = true;
+            clearTimeout(timer);
+            subscription.remove();
+            resolve(false);
+            return;
+          }
+          if (status.playing || status.currentTime > 0) {
+            settled = true;
+            clearTimeout(timer);
+            subscription.remove();
+            resolve(true);
+          }
+        });
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          subscription.remove();
+          resolve(Boolean(player.playing));
+        }, 2500);
+
+        player.play();
+      });
+
+      if (started) return true;
+      player.remove();
+      currentAudioPlayer = null;
+    } catch {
+      currentAudioPlayer?.remove();
+      currentAudioPlayer = null;
+    }
+  }
+
+  return false;
 }
 
 function speakOnce(text: string, attempt: SpeakAttempt, timeoutMs = Platform.OS === "android" ? 2400 : 1200) {
@@ -80,6 +163,8 @@ export async function speakText(text?: string, language = "zh-CN") {
 
   const speechText = normalizeSpeechText(value);
   if (!speechText) return false;
+
+  if (await playOnlineAudio(speechText)) return true;
 
   const voice = await getChineseVoice();
   const clippedText = speechText.slice(0, Speech.maxSpeechInputLength);
